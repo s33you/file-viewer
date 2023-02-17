@@ -1,3 +1,4 @@
+import filePathFilter from "@jsdevtools/file-path-filter";
 import fs from 'fs-extra'
 import path from 'path';
 import sharp from 'sharp'
@@ -20,5 +21,20 @@ export const compressFiles = async (files)=>{
 
 
 
+export const getFiles = (input,options={},paths=[]) => {
+    const {exclude = [] } = options //dir or name 
+    const isDir = fs.lstatSync(input).isDirectory()
+    if (isDir) {
+        const files = fs.readdirSync(input).filter(filePathFilter({exclude}))
+        
+        files.map(file=>{
+            getFiles(path.resolve(input, file), options, paths)
+        })
+    }
+    else{
+        paths.push(input)
+    }
+    return paths
+}
 
 
